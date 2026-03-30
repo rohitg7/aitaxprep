@@ -1,3 +1,5 @@
+> 🤖 **AI Tool?** Go to [Instructions for AI Tools](./for-ai-tools) — this page is the human overview.
+
 # Step 2: Tax Return Generation
 
 Generate a complete federal tax return in structured markdown from your converted document files.

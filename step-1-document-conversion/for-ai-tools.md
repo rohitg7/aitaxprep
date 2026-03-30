@@ -1,99 +1,80 @@
-# Instructions for AI Tools — Document Conversion
+---
+layout: default
+title: "Step 1: Document Conversion — AI Instructions"
+---
 
-You are helping a user convert their tax documents into structured markdown files. Follow these instructions precisely.
+<!-- THIS PAGE IS FOR AI TOOLS. Humans: see the [overview](./index.md) instead. -->
 
-## Your Task
+# Document Conversion — Instructions for AI Agents
 
-1. Install the **markitdown** library (see below) — it is the approved tool for document conversion
-2. Use `markitdown` to convert each file in the user's document folder to raw markdown
-3. For each converted document, determine its type (W-2, 1099, etc.)
-4. Re-structure the raw markdown into the standardized schema for that document type (see below)
-5. Save as `{document_type}_{sequence}.md` in the output folder
-6. Create a `_index.md` summary file listing all converted documents
+## ROLE
+You are converting tax documents to structured markdown.
 
-## Step 0: Install markitdown (REQUIRED)
+## INPUTS
+- `{input_dir}`: folder of tax documents (PDF, image, CSV, Excel, Word)
+- `{output_dir}`: folder for structured markdown output
 
-Before processing any documents, install Microsoft's **markitdown** library:
-
-```bash
+## REQUIRED TOOL
+```
 pip install 'markitdown[all]'
 ```
+markitdown is the ONLY approved conversion library.
+- IF markitdown fails on a file → ASK user before installing alternatives
+- DO NOT silently install other packages
 
-This is the **only pre-approved library** for document conversion. It handles PDFs, images (OCR), Excel, CSV, Word, HTML, and more.
-
-> ⚠️ **IMPORTANT — Library Policy**:
-> - You MUST use `markitdown` for all document conversion.
-> - If `markitdown` fails to process a specific file (e.g., unsupported format, corrupted file, poor OCR results), you MUST ask the user for explicit approval before installing or using any alternative library.
-> - Do NOT silently install other packages. Always explain what failed, what alternative you propose, and wait for user confirmation.
-> - Acceptable reason to ask: "markitdown could not extract text from `scan_blurry.jpg` — may I install `pytesseract` for better OCR? [Y/N]"
-
-## How to Process Each Document
-
-### Step-by-step for each file:
-
-1. **Convert with markitdown**:
-   ```bash
-   markitdown "path/to/document.pdf" -o "/tmp/raw_output.md"
-   ```
-   Or in Python:
+## PROCEDURE
+FOR each file in `{input_dir}`:
+1. RUN: `markitdown "{file}" -o "/tmp/raw.md"` OR use Python API:
    ```python
    from markitdown import MarkItDown
-   md = MarkItDown()
-   result = md.convert("path/to/document.pdf")
-   raw_text = result.text_content
+   result = MarkItDown().convert("{file}")
+   raw = result.text_content
    ```
+2. IDENTIFY document type from content (see TYPE DETECTION below)
+3. EXTRACT fields → map to schema (see SCHEMAS below)
+4. SAVE as `{output_dir}/{type}_{seq}.md`
 
-2. **Identify document type** from the raw markdown content:
-   - Look for keywords: "Wage and Tax Statement" → W-2, "Interest Income" → 1099-INT, etc.
-   - Look for form numbers: "Form W-2", "Form 1099-INT", etc.
+AFTER all files:
+5. CREATE `{output_dir}/_index.md` listing all converted documents
 
-3. **Extract fields** from the raw markdown and map them to the structured schema (see Document Schemas below)
+## TYPE DETECTION
+| Pattern in Content | Document Type | Output Prefix |
+|---|---|---|
+| "Wage and Tax Statement" OR "Form W-2" | W-2 | w2 |
+| "Interest Income" OR "Form 1099-INT" | 1099-INT | 1099_int |
+| "Dividends" OR "Form 1099-DIV" | 1099-DIV | 1099_div |
+| "Proceeds from Broker" OR "Form 1099-B" | 1099-B | 1099_b |
+| "Nonemployee Compensation" OR "1099-NEC" | 1099-NEC | 1099_nec |
+| "Mortgage Interest" OR "Form 1098" | 1098 | 1098 |
+| "Charitable" OR "Donation Receipt" | Charitable | charitable |
+| "Retirement" OR "Form 1099-R" | 1099-R | 1099_r |
+| "Social Security" OR "SSA-1099" | SSA-1099 | ssa_1099 |
+| (none match) | Unknown | generic |
 
-4. **Save** as structured markdown following the schema
-
-### Format-Specific Notes
-
-#### PDFs
-- `markitdown` extracts text content directly
-- If the PDF is a scanned image (no selectable text), markitdown may return minimal content — use the `markitdown-ocr` plugin or ask user for approval to use an alternative
-
-#### Images / Scanned Documents
-- `markitdown` supports images with EXIF metadata and basic OCR
-- For better OCR results, you can use markitdown with an LLM vision model:
-  ```python
-  from markitdown import MarkItDown
-  from openai import OpenAI
-  md = MarkItDown(llm_client=OpenAI(), llm_model="gpt-4o")
-  result = md.convert("scanned_w2.jpg")
+## FORMAT RULES
+- SSN: mask as `***-**-XXXX` (last 4 only)
+- EIN: include in full
+- Dollar amounts: plain number, 2 decimals, no $ or commas → `85000.00`
+- Empty numbers: `0.00`
+- Booleans: `true` / `false`
+- Dates: `YYYY-MM-DD`
+- Every file MUST start with:
   ```
-- Double-check numbers that are critical (wages, tax amounts, SSNs)
-- If markitdown OCR quality is insufficient, ask user: "markitdown could not reliably read [filename]. May I use your AI vision capabilities directly to read this document?"
+  <!-- schema_version: 1.0 -->
+  <!-- document_type: {type} -->
+  ```
 
-#### CSV / Excel Files
-- `markitdown` converts Excel/CSV to markdown tables directly
-- These are typically brokerage/bank statements with transaction details
-- Map columns to the appropriate schema fields
+## FORMAT-SPECIFIC NOTES
+| Format | Notes |
+|---|---|
+| PDF (text) | markitdown extracts directly |
+| PDF (scanned) | May return minimal content. Use LLM vision: `MarkItDown(llm_client=OpenAI(), llm_model="gpt-4o")` |
+| Images | Use LLM vision for OCR. Double-check critical numbers. |
+| CSV/Excel | markitdown converts to tables. Map columns to schema. |
+| Word/HTML | markitdown handles natively |
+| Unknown/Failed | Report error. ASK user before trying alternatives. |
 
-#### Word / HTML Documents
-- `markitdown` handles these natively
-- Extract relevant tax information and map to schema
-
-#### Unknown or Failed Documents
-- If `markitdown` fails entirely on a file, report the error to the user
-- Ask for approval before trying any alternative approach
-- If the document type cannot be determined, use the generic schema
-
-## Formatting Rules
-
-- **SSNs**: Mask as `***-**-XXXX` (show only last 4 digits). Example: `***-**-1234`
-- **EINs**: Include in full (employer identification numbers are public)
-- **Dollar amounts**: Plain numbers, no `$` or commas. Example: `85000.00` not `$85,000.00`
-- **Empty/N/A fields**: Use `0.00` for numbers, leave value cell blank for text
-- **Booleans**: Use `true` or `false` (lowercase)
-- **Dates**: Use `YYYY-MM-DD` format
-- **Metadata comments**: Every file must start with `<!-- schema_version: 1.0 -->` and `<!-- document_type: {type} -->`
-
-## Document Schemas
+## SCHEMAS
 
 ### W-2: Wage and Tax Statement
 
@@ -399,18 +380,15 @@ This is the **only pre-approved library** for document conversion. It handles PD
 (Include the full extracted text for manual review)
 ```
 
-## Quality Checks
+## MULTI-DOCUMENT RULES
+- Multi-page W-2 copies (B, C) → same data, extract once
+- Consolidated 1099 → split into separate files per type
+- Multiple accounts at same institution → increment sequence number
 
-After converting all documents, verify:
-- All SSNs are consistently masked as `***-**-XXXX`
-- All dollar amounts are plain numbers (no `$` or `,`)
-- Every source document has a corresponding `.md` file
-- The `_index.md` file lists all converted documents with correct types
-- No full SSNs appear anywhere in the output files
-- All monetary values have exactly 2 decimal places
-
-## Handling Multiple Pages / Multi-Part Documents
-
-- **Multi-page W-2s**: Some W-2s have copies (Copy B, Copy C). They contain the same data — extract once.
-- **Consolidated 1099**: Brokerages often send a single document with 1099-INT, 1099-DIV, and 1099-B combined. Create separate markdown files for each type.
-- **Multiple accounts at same institution**: Create separate files with incrementing sequence numbers.
+## QUALITY CHECKS
+BEFORE returning to user, verify:
+- [ ] All SSNs masked as `***-**-XXXX`
+- [ ] All dollar amounts: plain numbers, 2 decimals
+- [ ] Every source document has a `.md` file
+- [ ] `_index.md` lists all documents
+- [ ] No full SSNs anywhere in output

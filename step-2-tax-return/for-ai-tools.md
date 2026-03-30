@@ -1,113 +1,144 @@
-# Instructions for AI Tools — Tax Return Generation
+---
+layout: default
+title: "Step 2: Tax Return Generation — AI Instructions"
+---
 
-You are helping a user generate a complete federal tax return from their structured markdown documents. Follow these instructions precisely.
+<!-- THIS PAGE IS FOR AI TOOLS. Humans: see the [overview](./index.md) instead. -->
 
-## Your Task
+# Tax Return Generation — Instructions for AI Agents
 
-1. Read all `.md` files in the user's `docs_md/` folder (start with `_index.md`)
-2. Determine the user's filing status (ask if unclear)
-3. Determine which IRS forms and schedules are required
-4. Calculate every line item following IRS rules
-5. Cross-validate all calculations against official IRS publications (see "IRS Source Validation" below)
-6. Produce `tax_return.md` following the canonical schema
-7. Include a validation report at the end
+## ROLE
+You are generating a complete federal tax return from structured markdown documents.
 
-## Step-by-Step Process
+## INPUTS
+- `{docs_dir}`: folder containing structured `.md` files from Step 1 (includes `_index.md`)
+- User-provided: filing status, personal info, dependents
 
-### 1. Read All Documents
+## OUTPUT
+- `{docs_dir}/../tax_return.md` following the SCHEMA below
 
-Read `_index.md` first to see what documents exist, then read each document file. Collect:
-- All W-2 forms → total wages, total withholding
-- All 1099-INT forms → total interest
-- All 1099-DIV forms → total ordinary dividends, qualified dividends
-- All 1099-B forms → all transactions for Schedule D / Form 8949
-- All 1099-NEC forms → self-employment income
-- All 1098 forms → mortgage interest, property tax
-- All charitable receipts → donation totals
-- Any other documents
+## PROCEDURE
+1. READ `{docs_dir}/_index.md` → list of all document files
+2. READ each document file → collect all income, deduction, and credit data
+3. DETERMINE filing status — IF not provided → ASK user
+4. DETERMINE required forms (see FORM SELECTION below)
+5. FILL forms in DEPENDENCY ORDER (see below)
+6. CALCULATE every line item per IRS rules (see CALCULATION RULES below)
+7. VALIDATE against official IRS sources (see IRS SOURCE VALIDATION below)
+8. PRODUCE `tax_return.md` per SCHEMA
+9. APPEND validation report
 
-### 2. Determine Filing Status
+## DATA COLLECTION
+| Source Documents | Collect |
+|---|---|
+| W-2 | total wages (Box 1), total federal withheld (Box 2), SS wages, Medicare wages |
+| 1099-INT | total taxable interest (Box 1), tax-exempt interest (Box 8) |
+| 1099-DIV | ordinary dividends (Box 1a), qualified dividends (Box 1b), capital gain distributions (Box 2a) |
+| 1099-B | all transactions → Schedule D / Form 8949 |
+| 1099-NEC | self-employment income (Box 1) |
+| 1098 | mortgage interest (Box 1), property tax, points |
+| Charitable receipts | donation totals by type |
+| All 1099s | federal tax withheld (Box 4) |
 
-If not explicitly stated by the user, ask. The options are:
+## FILING STATUS
+MUST be one of:
 - `single`
 - `married_filing_jointly`
 - `married_filing_separately`
 - `head_of_household`
 - `qualifying_surviving_spouse`
 
-### 3. Determine Required Forms
+IF not stated by user → ASK. DO NOT assume.
 
-Based on the documents present:
-
-| If You Have | You Need |
-|------------|----------|
-| Any income | Form 1040 (always required) |
-| Interest > $1,500 or dividends > $1,500 | Schedule B |
-| Stock/crypto sales (1099-B) | Form 8949 + Schedule D |
-| Self-employment income (1099-NEC) | Schedule C + Schedule SE |
+## FORM SELECTION
+| IF | THEN include |
+|---|---|
+| Any income | Form 1040 (always) |
+| Interest > $1,500 OR dividends > $1,500 | Schedule B |
+| 1099-B transactions exist | Form 8949 + Schedule D |
+| 1099-NEC income exists | Schedule C + Schedule SE |
 | Itemized deductions > standard deduction | Schedule A |
 | Rental income | Schedule E |
 | Farm income | Schedule F |
 | HSA contributions/distributions | Form 8889 |
-| Education credits | Form 8863 |
-| IRA distributions (non-standard) | Form 8606 |
+| Education credits claimed | Form 8863 |
+| Non-standard IRA distributions | Form 8606 |
 
-### 4. Fill Forms in Dependency Order
-
-Some forms feed into others. Fill in this order:
+## DEPENDENCY ORDER
+FILL forms in this sequence (earlier forms feed later ones):
 1. Form 8949 (individual transactions)
-2. Schedule D (capital gains summary, uses 8949 totals)
+2. Schedule D (capital gains summary ← 8949 totals)
 3. Schedule C (business income)
-4. Schedule SE (self-employment tax, uses Schedule C)
+4. Schedule SE (self-employment tax ← Schedule C)
 5. Schedule A (itemized deductions)
-6. Schedule B (interest and dividends detail)
-7. Schedule 1 (additional income and adjustments, uses C, SE results)
+6. Schedule B (interest/dividends detail)
+7. Schedule 1 (additional income/adjustments ← C, SE)
 8. Schedule 2 (additional taxes)
 9. Schedule 3 (additional credits)
-10. Form 1040 (main form, uses all of the above)
+10. Form 1040 (main form ← all above)
 
-### 5. Calculate Line Items
+## CALCULATION RULES
 
-For each line, follow the IRS form instructions. Key calculations:
+### Form 1040 — Income
+| Line | Formula |
+|---|---|
+| 1a | SUM(all W-2 Box 1) |
+| 2a | SUM(all 1099-INT Box 8) + SUM(all 1099-DIV Box 12) |
+| 2b | SUM(all 1099-INT Box 1) |
+| 3a | SUM(all 1099-DIV Box 1b) |
+| 3b | SUM(all 1099-DIV Box 1a) |
+| 7 | Schedule D Line 21 (or Line 16) |
+| 8 | Schedule 1 Line 10 |
+| 9 | SUM(Lines 1z through 8) |
+| 10 | Schedule 1 Line 26 |
+| 11 | Line 9 − Line 10 (= AGI) |
+| 12 | MAX(standard_deduction, Schedule A total) |
+| 14 | Line 12 + Line 13 |
+| 15 | MAX(0, Line 11 − Line 14) (= taxable income) |
 
-#### Form 1040 Income Section
-- **Line 1a** = Sum of all W-2 Box 1
-- **Line 2a** = Sum of all 1099-INT Box 8 + 1099-DIV Box 12 (tax-exempt interest)
-- **Line 2b** = Sum of all 1099-INT Box 1 (taxable interest)
-- **Line 3a** = Sum of all 1099-DIV Box 1b (qualified dividends)
-- **Line 3b** = Sum of all 1099-DIV Box 1a (ordinary dividends)
-- **Line 7** = Schedule D Line 21 (or Line 16)
-- **Line 8** = Schedule 1 Line 10 (other income)
-- **Line 9** = Sum of lines 1 through 8
-- **Line 10** = Schedule 1 Line 26 (adjustments)
-- **Line 11** = Line 9 - Line 10 (AGI)
-- **Line 12** = Standard deduction OR Schedule A total (whichever is larger)
-- **Line 15** = Line 11 - Line 14 (taxable income, minimum 0)
+### Form 1040 — Tax
+| Line | Formula |
+|---|---|
+| 16 | Tax from IRS tax table/worksheet for filing status + taxable income |
+| 17 | Schedule 2, Part I, Line 4 |
+| 18 | Line 16 + Line 17 |
+| 19 | Child tax credit (Schedule 8812) |
+| 20 | Schedule 3, Line 8 |
+| 21 | Line 19 + Line 20 |
+| 22 | Line 18 − Line 21 |
+| 23 | Schedule 2, Part II, Line 21 |
+| 24 | Line 22 + Line 23 (= total tax) |
 
-#### Tax Calculation (Line 16)
-Use the IRS tax table or tax computation worksheet based on filing status and taxable income.
-**IMPORTANT**: Fetch the current year's tax brackets from the IRS. Do NOT use hard-coded rates.
+### Form 1040 — Payments
+| Line | Formula |
+|---|---|
+| 25a | SUM(all W-2 Box 2) |
+| 25b | SUM(all 1099 Box 4) |
+| 25d | SUM(Lines 25a through 25c) |
+| 33 | SUM(all payment lines) |
+| 34 | IF Line 33 > Line 24 → Line 33 − Line 24 (overpaid) |
+| 37 | IF Line 24 > Line 33 → Line 24 − Line 33 (amount owed) |
 
-#### Standard Deduction vs. Itemized
-1. Look up the current year's standard deduction for the filing status
-2. If Schedule A total > standard deduction → itemize
-3. Exception: If married filing separately and spouse itemizes → must itemize
+### Standard Deduction vs. Itemized
+1. LOOK UP current-year standard deduction for filing status from IRS
+2. IF Schedule A total > standard deduction → itemize
+3. IF married_filing_separately AND spouse itemizes → MUST itemize
 
-### 6. IRS Source Validation (REQUIRED)
+### Tax Calculation (Line 16)
+- MUST use current-year IRS tax brackets for the filing status
+- MUST fetch from IRS — DO NOT use hardcoded rates
 
-**You MUST validate against official IRS sources.** Our summaries are starting points, not the final authority.
+## IRS SOURCE VALIDATION (REQUIRED)
 
-#### Before Using ANY Number From This Site
+BEFORE using ANY number from this site, VERIFY against official IRS sources for the filing tax year:
 
-Fetch and confirm these values from the IRS for the filing tax year:
-
-| What | Where to Check |
-|------|---------------|
-| Standard deduction amounts | [IRS Revenue Procedure (annual)](https://www.irs.gov/newsroom/irs-provides-tax-inflation-adjustments) |
-| Tax bracket thresholds & rates | [IRS Revenue Procedure (annual)](https://www.irs.gov/newsroom/irs-provides-tax-inflation-adjustments) |
+| What | IRS Source |
+|---|---|
+| Standard deduction amounts | [Revenue Procedure (annual)](https://www.irs.gov/newsroom/irs-provides-tax-inflation-adjustments) |
+| Tax bracket thresholds & rates | [Revenue Procedure (annual)](https://www.irs.gov/newsroom/irs-provides-tax-inflation-adjustments) |
 | Capital loss deduction limit | [Publication 550](https://www.irs.gov/publications/p550) |
 | EITC income limits & amounts | [Publication 596](https://www.irs.gov/publications/p596) |
-| Child tax credit amounts | [IRS.gov Child Tax Credit page](https://www.irs.gov/credits-deductions/individuals/child-tax-credit) |
+| Child tax credit amounts | [IRS Child Tax Credit page](https://www.irs.gov/credits-deductions/individuals/child-tax-credit) |
 | Self-employment tax rate | [Publication 334](https://www.irs.gov/publications/p334) |
 | HSA contribution limits | [Publication 969](https://www.irs.gov/publications/p969) |
 | IRA contribution limits | [Publication 590-A](https://www.irs.gov/publications/p590a) |
@@ -115,12 +146,9 @@ Fetch and confirm these values from the IRS for the filing tax year:
 | SALT deduction cap | [Publication 5307](https://www.irs.gov/publications/p5307) |
 | AMT exemption amounts | [Form 6251 Instructions](https://www.irs.gov/instructions/i6251) |
 
-#### For Every Form You Fill
-
-Read the official IRS instructions:
-
+### FORM INSTRUCTIONS — MUST READ for every form you fill:
 | Form | Instructions URL |
-|------|-----------------|
+|---|---|
 | Form 1040 | https://www.irs.gov/instructions/i1040 |
 | Schedule A | https://www.irs.gov/instructions/i1040sa |
 | Schedule B | https://www.irs.gov/instructions/i1040sb |
@@ -130,48 +158,26 @@ Read the official IRS instructions:
 | Schedule SE | https://www.irs.gov/instructions/i1040sse |
 | Form 8949 | https://www.irs.gov/instructions/i8949 |
 
-#### Check for Recent Changes
-- Visit [IRS Newsroom](https://www.irs.gov/newsroom) for announcements
-- Check the form instruction's revision date
-- Review [Publication 17](https://www.irs.gov/publications/p17) for comprehensive individual tax guidance
+### IRS CHANGE CHECKS
+- CHECK [IRS Newsroom](https://www.irs.gov/newsroom) for announcements
+- CHECK form instruction revision dates
+- REVIEW [Publication 17](https://www.irs.gov/publications/p17) for comprehensive guidance
 
-#### Conflict Resolution
-If this site's summary contradicts an official IRS source:
-1. **Use the IRS source** — it is the legal authority
-2. Note the discrepancy in the Source column: `"IRS Pub XXX differs from spec"`
+### CONFLICT RESOLUTION
+IF this site contradicts an official IRS source:
+1. USE the IRS source — it is the legal authority
+2. NOTE discrepancy in Source column: `"IRS Pub XXX differs from spec"`
 
-### 7. Produce Validation Report
+## COMMON SCENARIOS
+| Scenario | Required Forms | Key Rules |
+|---|---|---|
+| Simple W-2 employee | 1040, maybe Schedule B | Standard deduction usually applies |
+| W-2 + investments | 1040, 8949, Schedule D, maybe Schedule B | Check wash sales; capital loss limit $3,000 ($1,500 if MFS) |
+| Freelancer / self-employed | 1040, Schedule C, Schedule SE, Schedule 1 | Include 50% SE tax deduction on Schedule 1 |
+| Homeowner with mortgage | 1040, Schedule A (if itemizing) | 1098 Box 1 → Sched A Line 8a; property tax → Sched A Line 5b (SALT cap applies) |
 
-At the end of `tax_return.md`, include:
-
-```markdown
-## Validation Report
-
-### IRS Sources Consulted
-| Check | Status | IRS Source Used |
-|-------|--------|----------------|
-| Standard deduction amount verified | ✅ | Rev. Proc. 2025-XX |
-| Tax bracket rates verified | ✅ | Rev. Proc. 2025-XX |
-| Capital loss limit verified | ✅ | Pub 550 (2025) |
-| Form instructions consulted | ✅ | i1040, i1040sd, i8949 |
-| Mid-year IRS changes checked | ✅ | IRS Newsroom as of YYYY-MM-DD |
-
-### Cross-Form Consistency
-| Check | Status |
-|-------|--------|
-| 1040 Line 1a = sum of W-2 Box 1 | ✅ |
-| 1040 Line 2b = sum of 1099-INT Box 1 | ✅ |
-| 1040 Line 7 = Schedule D Line 21 | ✅ |
-| 1040 Line 25a = sum of W-2 Box 2 | ✅ |
-| All math verified | ✅ |
-
-### Warnings
-- (List any issues, edge cases, or items requiring human review)
-```
-
-## Tax Return Markdown Schema
-
-Use the following format for `tax_return.md`:
+## SCHEMA
+Output `tax_return.md` in this format:
 
 ```markdown
 # Federal Tax Return {tax_year}
@@ -270,29 +276,32 @@ Use the following format for `tax_return.md`:
 | 38 | Estimated tax penalty | |
 
 (Include additional form sections as needed — Schedule A, B, C, D, SE, Form 8949, etc.)
-
-## Validation Report
-(See Section 7 above for format)
 ```
 
-## Common Scenarios
+## VALIDATION REPORT
+MUST append to end of `tax_return.md`:
 
-### Simple W-2 Employee
-- Forms needed: 1040 only (maybe Schedule B if interest > $1,500)
-- Standard deduction usually applies
+```markdown
+## Validation Report
 
-### W-2 + Investments
-- Forms needed: 1040, Form 8949, Schedule D, possibly Schedule B
-- Check for wash sales in 1099-B data
-- Capital losses limited to $3,000 deduction ($1,500 if MFS)
+### IRS Sources Consulted
+| Check | Status | IRS Source Used |
+|-------|--------|----------------|
+| Standard deduction amount verified | ✅ | Rev. Proc. {year}-XX |
+| Tax bracket rates verified | ✅ | Rev. Proc. {year}-XX |
+| Capital loss limit verified | ✅ | Pub 550 ({year}) |
+| Form instructions consulted | ✅ | i1040, i1040sd, i8949 |
+| Mid-year IRS changes checked | ✅ | IRS Newsroom as of {YYYY-MM-DD} |
 
-### Freelancer / Self-Employed
-- Forms needed: 1040, Schedule C, Schedule SE, Schedule 1
-- Don't forget the 50% SE tax deduction on Schedule 1
-- May need estimated tax payments (Form 1040-ES)
+### Cross-Form Consistency
+| Check | Status |
+|-------|--------|
+| 1040 Line 1a = sum of W-2 Box 1 | ✅ |
+| 1040 Line 2b = sum of 1099-INT Box 1 | ✅ |
+| 1040 Line 7 = Schedule D Line 21 | ✅ |
+| 1040 Line 25a = sum of W-2 Box 2 | ✅ |
+| All math verified | ✅ |
 
-### Homeowner with Mortgage
-- Forms needed: 1040, Schedule A (if itemizing)
-- Mortgage interest (1098 Box 1) → Schedule A Line 8a
-- Property taxes → Schedule A Line 5b (subject to SALT cap)
-- Compare itemized total vs. standard deduction
+### Warnings
+- (List any issues, edge cases, or items requiring human review)
+```

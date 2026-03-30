@@ -9,6 +9,12 @@ title: AI Tax Prep — AI-First Tax Filing
 
 AI Tax Prep is an open specificationthat lets AI tools (GitHub Copilot, Claude Code, ChatGPT, Cursor, etc.) prepare and file your federal tax return through [IRS Free File Fillable Forms](https://www.freefilefillableforms.com/).
 
+## For AI Tools — Direct Links
+
+If you're an AI agent, go directly to your instructions:
+- **Step 1**: [Document Conversion Instructions](./step-1-document-conversion/for-ai-tools)
+- **Step 2**: [Tax Return Generation Instructions](./step-2-tax-return/for-ai-tools)
+
 ## How It Works
 
 ```
@@ -80,8 +86,13 @@ The tool opens a browser, fills all forms on FreeFileFillableForms.com, and paus
 
 ## Navigation
 
+### For Humans
 - [Getting Started](./getting-started/)
 - [Step 1: Document Conversion](./step-1-document-conversion/)
 - [Step 2: Tax Return Generation](./step-2-tax-return/)
 - [Step 3: Form Filling](./step-3-form-filling/)
 - [Reference](./reference/)
+
+### For AI Tools
+- [Step 1: Document Conversion — AI Instructions](./step-1-document-conversion/for-ai-tools)
+- [Step 2: Tax Return Generation — AI Instructions](./step-2-tax-return/for-ai-tools)
