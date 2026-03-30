@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tax Prep — File Your Federal Taxes for Free</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --emerald-400: #34d399;
+      --emerald-500: #10b981;
+      --emerald-600: #059669;
+      --emerald-700: #047857;
+      --zinc-800: #27272a;
+      --zinc-900: #18181b;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      color: var(--slate-800);
+      background: var(--slate-50);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ───────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, var(--slate-900), var(--zinc-800));
+      color: #fff;
+      text-align: center;
+      padding: 5rem 1.5rem 4.5rem;
+    }
+
+    header h1 {
+      font-size: 3.25rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.75rem;
+    }
+
+    header h1 span { color: var(--emerald-400); }
+
+    header .tagline {
+      font-size: 1.35rem;
+      color: var(--slate-300);
+      max-width: 600px;
+      margin: 0 auto 1rem;
+    }
+
+    header .subtitle {
+      font-size: 1rem;
+      color: var(--slate-400);
+      font-family: 'Courier New', Courier, monospace;
+      margin-bottom: 2.25rem;
+    }
+
+    .cta {
+      display: inline-block;
+      background: var(--emerald-500);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 0.85rem 2.25rem;
+      border-radius: 8px;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .cta:hover { background: var(--emerald-600); transform: translateY(-1px); }
+
+    /* ── Section base ─────────────────────────────────────── */
+    section {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 4.5rem 1.5rem;
+    }
+
+    section h2 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    section .section-sub {
+      text-align: center;
+      color: var(--slate-500);
+      margin-bottom: 3rem;
+    }
+
+    /* ── How-it-works cards ────────────────────────────────── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      transition: box-shadow 0.2s;
+    }
+
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+
+    .card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+    .card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+
+    .card p { color: var(--slate-500); font-size: 0.95rem; }
+
+    /* ── Features ──────────────────────────────────────────── */
+    .features-bg { background: var(--slate-100); }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .feature {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1.75rem;
+      border-left: 4px solid var(--emerald-500);
+    }
+
+    .feature h3 { font-size: 1.05rem; margin-bottom: 0.35rem; }
+
+    .feature p { color: var(--slate-500); font-size: 0.9rem; }
+
+    /* ── Pricing ───────────────────────────────────────────── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .plan {
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      background: #fff;
+      text-align: center;
+    }
+
+    .plan.featured {
+      border-color: var(--emerald-500);
+      box-shadow: 0 0 0 2px var(--emerald-500);
+    }
+
+    .plan h3 { font-size: 1.35rem; margin-bottom: 0.25rem; }
+
+    .plan .price {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--emerald-600);
+      margin: 0.5rem 0 1.25rem;
+    }
+
+    .plan ul {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+
+    .plan ul li {
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--slate-100);
+      font-size: 0.95rem;
+      color: var(--slate-600);
+    }
+
+    .plan ul li::before {
+      content: '✓ ';
+      color: var(--emerald-500);
+      font-weight: 700;
+    }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    footer {
+      background: var(--slate-900);
+      color: var(--slate-400);
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    footer a { color: var(--emerald-400); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    footer .heart { color: #ef4444; }
+
+    footer p + p { margin-top: 0.5rem; }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      header h1 { font-size: 2.25rem; }
+      header .tagline { font-size: 1.1rem; }
+      section { padding: 3rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Hero ───────────────────────────────────────────── -->
+  <header>
+    <h1>AI Tax <span>Prep</span></h1>
+    <p class="tagline">File your federal taxes for free using AI tools you already have</p>
+    <p class="subtitle">Convert documents → Generate tax return → E-file automatically</p>
+    <a href="../getting-started/" class="cta">Get Started →</a>
+  </header>
+
+  <!-- ── How It Works ───────────────────────────────────── -->
+  <section>
+    <h2>How It Works</h2>
+    <p class="section-sub">Three simple steps from documents to filed return</p>
+    <div class="cards">
+      <div class="card">
+        <div class="icon">📄</div>
+        <h3>Collect Documents</h3>
+        <p>Drop your W-2s, 1099s, and other tax docs in a folder</p>
+      </div>
+      <div class="card">
+        <div class="icon">🤖</div>
+        <h3>AI Does the Work</h3>
+        <p>Your AI tool (Copilot, Claude Code, Cursor) reads our specs and builds your tax return</p>
+      </div>
+      <div class="card">
+        <div class="icon">🎭</div>
+        <h3>Auto-Fill &amp; E-File</h3>
+        <p>Our Playwright tool fills FreeFileFillableForms.com while you watch</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Key Features ───────────────────────────────────── -->
+  <div class="features-bg">
+    <section>
+      <h2>Key Features</h2>
+      <p class="section-sub">Built for developers and power users</p>
+      <div class="features">
+        <div class="feature">
+          <h3>AI-Native</h3>
+          <p>Works with any AI coding tool — Copilot, Claude Code, Cursor, and more</p>
+        </div>
+        <div class="feature">
+          <h3>Free &amp; Open</h3>
+          <p>Specs are open source, no vendor lock-in — you own your data</p>
+        </div>
+        <div class="feature">
+          <h3>Secure</h3>
+          <p>Everything runs locally on your machine. SSNs are never stored.</p>
+        </div>
+        <div class="feature">
+          <h3>Human-in-the-Loop</h3>
+          <p>You review every line before anything is filed. Full transparency.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── Pricing ────────────────────────────────────────── -->
+  <section>
+    <h2>Pricing</h2>
+    <p class="section-sub">Simple pricing, no surprises</p>
+    <div class="pricing-grid">
+      <div class="plan">
+        <h3>Free</h3>
+        <div class="price">$0</div>
+        <ul>
+          <li>Form 1040 only</li>
+          <li>Basic filing</li>
+          <li>Community support</li>
+        </ul>
+        <a href="../getting-started/" class="cta" style="font-size: 0.95rem; padding: 0.65rem 1.75rem;">Start Free</a>
+      </div>
+      <div class="plan featured">
+        <h3>Pro</h3>
+        <div class="price">$19.99<span style="font-size: 0.9rem; font-weight: 400; color: var(--slate-500);">/yr</span></div>
+        <ul>
+          <li>All forms &amp; schedules</li>
+          <li>Complex returns</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="../getting-started/" class="cta" style="font-size: 0.95rem; padding: 0.65rem 1.75rem;">Get Pro</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ─────────────────────────────────────────── -->
+  <footer>
+    <p><a href="https://github.com/example/aitaxprep">GitHub</a></p>
+    <p>This tool is not tax advice. Consult a qualified tax professional for your specific situation.</p>
+    <p>Built with <span class="heart">❤️</span> for tax season</p>
+  </footer>
+
+</body>
+</html>
