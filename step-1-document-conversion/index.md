@@ -2,7 +2,7 @@
 
 # Step 1: Document Conversion
 
-Convert your tax documents (W-2s, 1099s, brokerage statements, etc.) into structured markdown files that AI tools can process for tax return generation.
+Convert your tax documents (W-2s, 1099s, brokerage statements, etc.) into structured markdown files that AI tools can process for tax breakdown generation.
 
 ## Overview
 

@@ -1,23 +1,24 @@
 ---
 layout: default
-title: "Step 2: Tax Return Generation — AI Instructions"
+title: "Step 2: Tax Breakdown Generation — AI Instructions"
 ---
 
 <!-- THIS PAGE IS FOR AI TOOLS. Humans: see the [overview](./index.md) instead. -->
 
-# Tax Return Generation — Instructions for AI Agents
+# Tax Breakdown Generation — Instructions for AI Agents
 
-> ⚠️ **DISCLAIMER**: These instructions are AI-generated and not verified by any CPA, tax professional, or the IRS. Tax rules, calculations, and form instructions may contain errors. The user is solely responsible for reviewing and verifying their tax return before filing. This is not tax advice.
+> ⚠️ **DISCLAIMER**: These instructions are AI-generated and not verified by any CPA, tax professional, or the IRS. Tax rules, calculations, and form instructions may contain errors. This breakdown is for educational and informational purposes only. It is not tax advice. The user must consult a qualified tax professional before making any tax filing decisions.
 
 ## ROLE
-You are generating a complete federal tax return from structured markdown documents.
+You are generating a tax breakdown to help a user understand their federal taxes. You will produce two outputs: a markdown analysis and an interactive HTML file with full data lineage.
 
 ## INPUTS
 - `{docs_dir}`: folder containing structured `.md` files from Step 1 (includes `_index.md`)
 - User-provided: filing status, personal info, dependents
 
 ## OUTPUT
-- `{docs_dir}/../tax_return.md` following the SCHEMA below
+- `{docs_dir}/../tax_return.md` — detailed tax breakdown per SCHEMA below
+- `{docs_dir}/../tax_return.html` — interactive HTML with data lineage per HTML SPEC below
 
 ## PROCEDURE
 1. READ `{docs_dir}/_index.md` → list of all document files
@@ -29,6 +30,7 @@ You are generating a complete federal tax return from structured markdown docume
 7. VALIDATE against official IRS sources (see IRS SOURCE VALIDATION below)
 8. PRODUCE `tax_return.md` per SCHEMA
 9. APPEND validation report
+10. GENERATE `tax_return.html` per HTML SPEC
 
 ## DATA COLLECTION
 | Source Documents | Collect |
@@ -307,3 +309,117 @@ MUST append to end of `tax_return.md`:
 ### Warnings
 - (List any issues, edge cases, or items requiring human review)
 ```
+
+## INTERACTIVE HTML SPECIFICATION
+
+GENERATE `tax_return.html` — a single self-contained HTML file (inline CSS + JS, no external deps).
+
+### Structure
+- Header with taxpayer name, tax year, filing status
+- One collapsible section per form (Form 1040, Schedule D, etc.)
+- Each section contains a table matching the markdown format
+
+### Data Lineage (CRITICAL FEATURE)
+Every value cell MUST be clickable/hoverable. On click, show a popover or side panel with:
+
+1. **Source**: Which document the data came from
+   - Example: "W-2 from Acme Corp (w2_1.md), Box 1"
+   - Example: "1099-INT from Chase Bank (1099_int_1.md), Box 1"
+   - For calculated fields: "Calculated: Line 1a + Line 2b + Line 3b + ..."
+
+2. **Calculation**: How the number was derived
+   - Example: "$85,000.00 = W-2 Box 1 (Acme Corp)"
+   - Example: "$86,914.25 = $85,000.00 (wages) + $245.50 (interest) + $418.75 (dividends) + $1,250.00 (capital gains)"
+
+3. **IRS Rule**: The relevant IRS rule or publication
+   - Example: "Per IRS Form 1040 Instructions, Line 9: Add lines 1z through 8"
+   - Example: "Standard deduction for Single filer: $15,000 (Rev. Proc. 2024-40)"
+
+### Visual Design
+- Clean, professional design (use CSS grid or flexbox)
+- Color coding:
+  - 🟢 Green border: value from source document (W-2, 1099, etc.)
+  - 🔵 Blue border: calculated value (sum, formula)
+  - 🟡 Yellow border: IRS-defined value (standard deduction, tax brackets)
+- Collapsible sections for each form
+- A summary card at top showing: Total Income, Total Tax, Total Payments, Refund/Owed
+
+### Lineage Data Structure
+Embed lineage as JSON in a `<script>` tag:
+```js
+const lineage = {
+  "1040.1a": {
+    value: 85000.00,
+    type: "source",
+    sources: [{ doc: "w2_1.md", field: "Box 1", entity: "Acme Corp" }],
+    irs_rule: "Form 1040 Line 1a: Total from Form(s) W-2, box 1"
+  },
+  "1040.9": {
+    value: 86914.25,
+    type: "calculated",
+    formula: "Line 1z + Line 2b + Line 3b + Line 7 + Line 8",
+    components: [
+      { ref: "1040.1a", value: 85000.00 },
+      { ref: "1040.2b", value: 245.50 },
+      { ref: "1040.3b", value: 418.75 },
+      { ref: "1040.7", value: 1250.00 },
+      { ref: "1040.8", value: 0.00 }
+    ],
+    irs_rule: "Form 1040 Line 9: Add lines 1z through 8"
+  },
+  "1040.12": {
+    value: 15000.00,
+    type: "irs_defined",
+    explanation: "Standard deduction for Single filing status",
+    irs_rule: "Rev. Proc. 2024-40, §3.01"
+  }
+};
+```
+
+### Interactivity (JavaScript)
+- Click any value → show popover with lineage details
+- Click a source reference → scroll to/highlight that source document's section
+- Click a component reference → scroll to/highlight that line item
+- Collapse/expand form sections
+- Print-friendly: popover content prints inline when printed (use @media print)
+
+### HTML Template Structure
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tax Breakdown — {taxpayer_name} — {tax_year}</title>
+  <style>/* all CSS inline */</style>
+</head>
+<body>
+  <header>
+    <h1>Tax Breakdown — {tax_year}</h1>
+    <p class="disclaimer">⚠️ For educational purposes only. AI-generated, not verified by any CPA or the IRS. Not tax advice.</p>
+    <div class="summary-cards">
+      <!-- Total Income, AGI, Total Tax, Payments, Refund/Owed -->
+    </div>
+  </header>
+  <main>
+    <!-- One section per form, each collapsible -->
+    <section class="form-section" data-form="1040">
+      <h2>Form 1040: U.S. Individual Income Tax Return</h2>
+      <table>
+        <tr data-line="1040.1a">
+          <td>1a</td>
+          <td>Wages, salaries, tips</td>
+          <td class="value clickable source" data-lineage="1040.1a">$85,000.00</td>
+        </tr>
+        <!-- ... -->
+      </table>
+    </section>
+  </main>
+  <script>
+    const lineage = { /* ... */ };
+    // Click handlers, popover logic, navigation
+  </script>
+</body>
+</html>
+```
+
+IMPORTANT: The HTML MUST be a single self-contained file. No external CSS, JS, or font dependencies. Everything inline.

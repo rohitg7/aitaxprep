@@ -1,6 +1,8 @@
 # Step 3: Form Filling with Playwright
 
-> ⚠️ **DISCLAIMER**: This tool is developed entirely by AI and has not been reviewed or verified by any CPA, tax professional, the IRS, or any other authority. This is not tax advice. You use this tool entirely at your own risk and are solely responsible for reviewing all filled values before submitting.
+> 📝 **This step is optional.** The primary value of AI Tax Prep is understanding your taxes (Steps 1 & 2). This step is for advanced users who want to auto-fill IRS Free File Fillable Forms using the generated tax data.
+
+> ⚠️ **DISCLAIMER**: This tool is developed entirely by AI and has not been reviewed or verified by any CPA, tax professional, the IRS, or any other authority. This is for educational and informational purposes only. This is not tax advice. You use this tool entirely at your own risk and are solely responsible for reviewing all filled values before submitting.
 
 Automatically fill your tax return on[FreeFileFillableForms.com](https://www.freefilefillableforms.com/) using the `aitaxprep` CLI tool.
 

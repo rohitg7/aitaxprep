@@ -1,8 +1,10 @@
 > 🤖 **AI Tool?** Go to [Instructions for AI Tools](./for-ai-tools) — this page is the human overview.
 
-# Step 2: Tax Return Generation
+# Step 2: Tax Breakdown Generation
 
-Generate a complete federal tax return in structured markdown from your converted document files.
+> 💡 **What's new:** Step 2 now produces TWO outputs — a detailed markdown breakdown AND an interactive HTML file with full data lineage. Click any number in the HTML to trace it back to the source document and IRS rule.
+
+Generate a complete federal tax breakdown in structured markdown and an interactive HTML file from your converted document files.
 
 ## Overview
 
@@ -10,8 +12,9 @@ Your AI tool will:
 1. Read all document markdown files from Step 1
 2. Determine which IRS forms and schedules are needed
 3. Calculate all line items following IRS rules
-4. Produce a single `tax_return.md` file
-5. Validate the return against IRS rules and cross-check with official IRS publications
+4. Produce a single `tax_return.md` file with a detailed line-by-line breakdown
+5. Produce a single `tax_return.html` file — an interactive page where every number is clickable, showing its source document, calculation, and IRS rule
+6. Validate the analysis against IRS rules and cross-check with official IRS publications
 
 ## For AI Tools
 

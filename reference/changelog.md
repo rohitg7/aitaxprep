@@ -2,6 +2,17 @@
 
 All notable changes to the AI Tax Prep specification will be documented here.
 
+## [1.1.0] — 2026-07-14
+
+### Changed — Project Pivot: Tax Understanding / Education
+- **Reframed project purpose**: From "file your federal taxes" to "understand your federal taxes." The primary value is now tax education with full data lineage, not form filling.
+- **Step 2 now produces two outputs**: `tax_return.md` (detailed markdown breakdown) AND `tax_return.html` (interactive HTML with clickable data lineage).
+- **Interactive HTML specification added**: Every number is clickable, showing its source document, calculation formula, and IRS rule. Color-coded by value type (source, calculated, IRS-defined).
+- **Step 3 (form filling) is now optional**: Moved from core workflow to optional advanced step.
+- **Updated all disclaimers**: Now emphasize "educational and informational purposes only" throughout.
+- **Removed Node.js from main prerequisites**: Only needed for optional Step 3.
+- **Updated landing page, homepage, getting started, FAQ, and all step pages** to reflect the education-first approach.
+
 ## [1.0.0] — 2026-03-23
 
 ### Added

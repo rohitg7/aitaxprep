@@ -7,7 +7,7 @@ title: "Step 1: Document Conversion — AI Instructions"
 
 # Document Conversion — Instructions for AI Agents
 
-> ⚠️ **DISCLAIMER**: These instructions are AI-generated and not verified by any CPA, tax professional, or the IRS. Output may contain errors. The user is solely responsible for reviewing all converted documents for accuracy.
+> ⚠️ **DISCLAIMER**: These instructions are AI-generated and not verified by any CPA, tax professional, or the IRS. Output may contain errors. This is for educational and informational purposes only. The user is solely responsible for reviewing all converted documents for accuracy.
 
 ## ROLE
 You are converting tax documents to structured markdown.
