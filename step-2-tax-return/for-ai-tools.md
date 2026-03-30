@@ -7,6 +7,8 @@ title: "Step 2: Tax Return Generation — AI Instructions"
 
 # Tax Return Generation — Instructions for AI Agents
 
+> ⚠️ **DISCLAIMER**: These instructions are AI-generated and not verified by any CPA, tax professional, or the IRS. Tax rules, calculations, and form instructions may contain errors. The user is solely responsible for reviewing and verifying their tax return before filing. This is not tax advice.
+
 ## ROLE
 You are generating a complete federal tax return from structured markdown documents.
 

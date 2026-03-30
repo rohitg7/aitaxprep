@@ -5,9 +5,11 @@ title: AI Tax Prep — AI-First Tax Filing
 
 # AI Tax Prep
 
+> ⚠️ **DISCLAIMER**: This project, including all specifications, instructions, and tools, is **developed entirely by AI** and has **not been reviewed, verified, or endorsed by any CPA, tax professional, the IRS, or any other authority**. This is not tax advice. All content may contain errors. **You use this project entirely at your own risk.** You are solely responsible for reviewing and verifying your tax return before filing. Consult a qualified tax professional for your specific situation.
+
 **File your federal taxes for free using AI tools you already have.**
 
-AI Tax Prep is an open specificationthat lets AI tools (GitHub Copilot, Claude Code, ChatGPT, Cursor, etc.) prepare and file your federal tax return through [IRS Free File Fillable Forms](https://www.freefilefillableforms.com/).
+AI Tax Prep is an open specification that lets AI tools (GitHub Copilot, Claude Code, ChatGPT, Cursor, etc.) prepare and file your federal tax return through [IRS Free File Fillable Forms](https://www.freefilefillableforms.com/).
 
 ## For AI Tools — Direct Links
 
@@ -83,6 +85,10 @@ The tool opens a browser, fills all forms on FreeFileFillableForms.com, and paus
 - **Full SSNs prompted at runtime** only when the Playwright filler needs them
 - **No data leaves your machine** — everything runs locally
 - **No accounts or signups** — just specs and a CLI tool
+
+## Disclaimer
+
+> ⚠️ **This project is developed entirely by AI.** All specifications, tax rules, form instructions, and tools are AI-generated and have **not been reviewed or verified by any CPA, tax professional, the IRS, or any other authority**. This is not tax advice. All content may contain errors, omissions, or inaccuracies. You use this project entirely at your own risk. You are solely responsible for the accuracy of your tax return. Consult a qualified tax professional for your specific situation. By using this project, you acknowledge and accept these terms.
 
 ## Navigation
 

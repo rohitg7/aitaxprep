@@ -1,5 +1,7 @@
 # Getting Started
 
+> ⚠️ **DISCLAIMER**: This project is developed entirely by AI and has not been reviewed or verified by any CPA, tax professional, the IRS, or any other authority. This is not tax advice. You use this project entirely at your own risk and are solely responsible for the accuracy of your tax return.
+
 ## Overview
 
 AI Tax Prep is a specification-first system. Instead of building a monolithic tax app, we provide **structured instructions** that your AI tools follow to prepare your taxes.

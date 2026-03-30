@@ -1,6 +1,8 @@
 # Step 3: Form Filling with Playwright
 
-Automatically fill your tax return on [FreeFileFillableForms.com](https://www.freefilefillableforms.com/) using the `aitaxprep` CLI tool.
+> ⚠️ **DISCLAIMER**: This tool is developed entirely by AI and has not been reviewed or verified by any CPA, tax professional, the IRS, or any other authority. This is not tax advice. You use this tool entirely at your own risk and are solely responsible for reviewing all filled values before submitting.
+
+Automatically fill your tax return on[FreeFileFillableForms.com](https://www.freefilefillableforms.com/) using the `aitaxprep` CLI tool.
 
 ## Overview
 
